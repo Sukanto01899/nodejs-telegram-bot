@@ -23,6 +23,7 @@ function getUpdates(){
                     offset = update.update_id + 1;
 
                     if(message && message.text){
+                        console.log(message)
                         const text = messageType(message.from.first_name, message.text)
                         sendMessage(message.chat.id, text)
                     }
