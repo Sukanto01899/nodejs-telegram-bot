@@ -66,6 +66,10 @@ setInterval(()=>{
 
 }, 60 * 1000)
 
+app.get('/', (req, res)=>{
+  res.sendStatus(200)
+})
+
 // Start Express server
 app.listen(PORT, () => {
   console.log(`✅ Server running on port ${PORT}`);

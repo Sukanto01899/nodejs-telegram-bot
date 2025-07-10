@@ -19,15 +19,13 @@ const setReminder = (userId, command) => {
     .insertOne({ time })
     .then((res) => {
       if (res.success) {
-        sendMessage(
-          userId,
-          "Reminder setting done!"
-        );
+        sendMessage(userId, "Reminder setting done!");
       }
     })
     .catch((err) => console.log(err));
 };
 
+// sent remind message by check remind
 const checkReminder = async () => {
   const now = new Date();
   const currentTime = now.toTimeString().slice(0, 5);
@@ -36,16 +34,10 @@ const checkReminder = async () => {
     const allReminder = await reminder.find();
     const allUsers = await users.find();
 
-    console.log('inside checkReminder', {allReminder, allReminder})
-
     allReminder.forEach((remind) => {
-        console.log('inside remind loop', {remind: remind.time, currentTime})
-        console.log('compare', currentTime == remind.time)
       if (currentTime === remind.time) {
-
-        console.log('inside condition')
+        console.log("inside condition");
         allUsers.forEach((user) => {
-            console.log(user)
           sendMessage(user.userId, "Hay,\n This is a reminder");
         });
       }
@@ -57,5 +49,10 @@ const checkReminder = async () => {
   }
 };
 
+// get all set reminder
+const getAllReminder = () => {};
+
+// Reset all remind
+const resetAllReminder = () => {};
 
 module.exports = { setReminder, checkReminder };
