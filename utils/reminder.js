@@ -36,7 +36,10 @@ const checkReminder = async () => {
     const allReminder = await reminder.find();
     const allUsers = await users.find();
 
+    console.log(allReminder, allUsers)
+
     allReminder.forEach((remind) => {
+        console.log(remind)
       if (currentTime === remind.time) {
         allUsers.forEach((user) => {
             console.log("from checkReminder", user.chatId)
