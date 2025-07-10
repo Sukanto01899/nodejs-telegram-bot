@@ -17,7 +17,14 @@ const setReminder = (userId, command) => {
   const time = parts[1];
   reminder
     .insertOne({ time })
-    .then((res) => console.log(res.success))
+    .then((res) => {
+      if (res.success) {
+        sendMessage(
+          userId,
+          "Reminder setting done!"
+        );
+      }
+    })
     .catch((err) => console.log(err));
 };
 
@@ -31,17 +38,16 @@ const checkReminder = async () => {
 
     allReminder.forEach((remind) => {
       if (currentTime === remind.time) {
-         allUsers.forEach((user) => {
+        allUsers.forEach((user) => {
           sendMessage(user.chatId, "Hay,\n This is a reminder");
         });
       }
     });
 
-    return {success: true}
+    return { message: "All reminder already sent!" };
   } catch (error) {
     return error;
   }
 };
 
-
-module.exports = {setReminder, checkReminder};
+module.exports = { setReminder, checkReminder };

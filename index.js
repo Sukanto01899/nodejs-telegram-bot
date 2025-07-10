@@ -11,8 +11,6 @@ const client = new Database();
 const db = client.db('users');
 const users = db.createCollection('users')
 
-const TOKEN = process.env.TOKEN;
-const TELEGRAM_API = `${process.env.API_URL}/bot${TOKEN}`;
 const PORT = process.env.PORT || 3000;
 
 app.use(bodyParser.json())
