@@ -39,6 +39,7 @@ const checkReminder = async () => {
     allReminder.forEach((remind) => {
       if (currentTime === remind.time) {
         allUsers.forEach((user) => {
+            console.log("from checkReminder", user.chatId)
           sendMessage(user.chatId, "Hay,\n This is a reminder");
         });
       }
