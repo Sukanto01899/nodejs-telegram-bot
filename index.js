@@ -1,47 +1,56 @@
-const https = require('https');
-const loadEnv = require("./utils/loadEnv");
-const messageType = require("./utils/messageType")
+const express = require('express');
+const bodyParser = require('body-parser')
+const cors = require('cors');
 
-loadEnv()
+const app = express();
 
-let offset = 0;
+const TOKEN = '8117114223:AAFo7nVsd32wxpgrxLFCdrfjbxbR9COpX6s';
+const TELEGRAM_API = `https://api.telegram.org/bot${TOKEN}`;
+const PORT = process.env.PORT || 3000;
 
-const api = `${process.env.API_URL}bot${process.env.TELEGRAM_TOKEN}`
+app.use(bodyParser.json())
+app.use(cors())
 
-function getUpdates(){
-    const url = `${api}/getUpdates?timeout=10&offset=${offset}`;
+app.post('/webhook', (req, res)=>{
+    const update = req.body;
 
-    https.get(url, (res)=>{
-        let data = "";
+    console.log(update)
 
-        res.on("data", chunk => data+=chunk);
-        res.on('end', ()=>{
-            const json = JSON.parse(data);
-            if(json.result && json.result.length > 0){
-                json.result.forEach(update => {
-                    const message = update.message;
-                    offset = update.update_id + 1;
+    if (update.message && update.message.text) {
+    const chatId = update.message.chat.id;
+    const text = update.message.text;
 
-                    if(message && message.text){
-                        console.log(message)
-                        const text = messageType(message.from.first_name, message.text)
-                        sendMessage(message.chat.id, text)
-                    }
-                    
-                });
-            }
-        })
-        res.on("error", ()=>{})
-    })
+    // Respond to /start
+    if (text === '/start') {
+      sendMessage(chatId, '👋 Welcome! I am live with Webhook!');
+    } else {
+      sendMessage(chatId, `You said: ${text}`);
+    }
+  }
+
+  res.sendStatus(200); // Respond to Telegram
+})
+
+// 🔁 Function to send message back to user
+function sendMessage(chatId, text) {
+  const url = `${TELEGRAM_API}/sendMessage`;
+  const data = {
+    chat_id: chatId,
+    text: text,
+  };
+
+  // Send POST request to Telegram API
+  require('https').request(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    }
+  }, res => {
+    res.on('data', () => {});
+  }).end(JSON.stringify(data));
 }
 
-function sendMessage(chatId, text){
-     const url = `${api}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(text)}`;
-
-     https.get(url, (res)=>{
-        res.on('data', ()=> {})
-     })
-};
-
-
-setInterval(getUpdates, 1000);
+// Start Express server
+app.listen(PORT, () => {
+  console.log(`✅ Server running on port ${PORT}`);
+});
