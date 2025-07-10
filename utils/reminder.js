@@ -36,9 +36,16 @@ const checkReminder = async () => {
     const allReminder = await reminder.find();
     const allUsers = await users.find();
 
+    console.log('inside checkReminder', {allReminder, allReminder})
+
     allReminder.forEach((remind) => {
+        console.log('inside remind loop', {remind: remind.time, currentTime})
+        console.log('compare', currentTime == remind.time)
       if (currentTime === remind.time) {
+
+        console.log('inside condition')
         allUsers.forEach((user) => {
+            console.log(user)
           sendMessage(user.userId, "Hay,\n This is a reminder");
         });
       }
