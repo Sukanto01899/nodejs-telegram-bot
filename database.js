@@ -60,8 +60,13 @@ class Database {
             // const foundedData = allData.find(item => )
           },
 
-          findAll: async ()=>{
-
+          find: async ()=>{
+            try{
+              const res = await readJsonData();
+              return res;
+            }catch(err){
+              throw err
+            }
           }
         };
       },

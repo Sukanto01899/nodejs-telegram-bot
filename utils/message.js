@@ -1,60 +1,25 @@
-const https = require('https');
-const loadEnv = require("./loadEnv");
-
-loadEnv()
-
-const api = `${process.env.API_URL}bot${process.env.TELEGRAM_TOKEN}`
-
-const messageType = (name, message) => {
-  const msg = message.trim().toLowerCase();
- 
-  switch (msg) {
-    case "hi":
-      return `Hi ${name}\nHow are you?`;
-    case "hello":
-      return `Hello ${name}\nHow are you doing?`;
-    case "/start":
-      return `Hi ${name}\n Iam ready to work. just add me to your group and make admin`;
-    default:
-      return`Hi ${name}\nHow can I help you?`;
-  }
-};
-
-const sendWelcome = (chatId)=>{
-  console.log(chatId)
-  const msg = "👋 Welcome! I am your Telegram bot.\nChoose an option below:"
-
-  const replyMarkup = {
-    inline_keyboard: [
-      [{text: 'More Info', url: "https://sukanto-das.vercel.app/"}],
-      [{text: 'Github', url: "https://github.com/Sukanto01899"}]
-    ],
-  }
+const TOKEN = process.env.TOKEN;
+const TELEGRAM_API = `${process.env.API_URL}/bot${TOKEN}`;
 
 
-  const data = JSON.stringify({
+// 🔁 Function to send message back to user
+function sendMessage(chatId, text) {
+  const url = `${TELEGRAM_API}/sendMessage`;
+  const data = {
     chat_id: chatId,
-    text: msg,
-    reply_markup: replyMarkup
-  })
+    text: text,
+  };
 
-  const options = {
+  // Send POST request to Telegram API
+  require('https').request(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Content-Length': Buffer.byteLength(data)
     }
-  }
-
-  const req = https.request(api + '/sendMessage', options, res=>{
-    res.on('data', (x)=>{
-      console.log(x)
-    })
-  })
-
-  req.on('error', error => console.log(error));
-  req.write(data);
-  req.end()
+  }, res => {
+    res.on('data', () => {});
+  }).end(JSON.stringify(data));
 }
 
-module.exports = {messageType, sendWelcome};
+
+module.exports = sendMessage

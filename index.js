@@ -1,15 +1,18 @@
 const express = require('express');
 const bodyParser = require('body-parser')
 const cors = require('cors');
-const Database = require('./database')
+const Database = require('./database');
+require('dotenv').config();
+const sendMessage = require('./utils/message');
+const {setReminder, checkReminder} = require('./utils/reminder');
 
 const app = express();
 const client = new Database();
 const db = client.db('users');
 const users = db.createCollection('users')
 
-const TOKEN = '8117114223:AAFo7nVsd32wxpgrxLFCdrfjbxbR9COpX6s';
-const TELEGRAM_API = `https://api.telegram.org/bot${TOKEN}`;
+const TOKEN = process.env.TOKEN;
+const TELEGRAM_API = `${process.env.API_URL}/bot${TOKEN}`;
 const PORT = process.env.PORT || 3000;
 
 app.use(bodyParser.json())
@@ -28,6 +31,8 @@ app.post('/webhook', (req, res)=>{
       .then(res => sendMessage(chatId, '👋 You are in!'))
       .catch(err => console.log(err))
       sendMessage(chatId, '👋 Welcome! I am live with Webhook!');
+    }else if(text.startsWith('/setreminder')){
+      setReminder(chatId, text)
     } else {
       sendMessage(chatId, `You said: ${text}`);
     }
@@ -36,29 +41,15 @@ app.post('/webhook', (req, res)=>{
   res.sendStatus(200); // Respond to Telegram
 })
 
-// 🔁 Function to send message back to user
-function sendMessage(chatId, text) {
-  const url = `${TELEGRAM_API}/sendMessage`;
-  const data = {
-    chat_id: chatId,
-    text: text,
-  };
-
-  // Send POST request to Telegram API
-  require('https').request(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    }
-  }, res => {
-    res.on('data', () => {});
-  }).end(JSON.stringify(data));
-}
-
 
 // Function to save user data to database
 const saveUserId = async (userId)=>{
   try{
+    const allUsers = await users.find();
+    const findUser = allUsers.find(u => u.userId === userId);
+    if(findUser){
+      return;
+    }
     const res = await users.insertOne({userId})
     if(res.success){
       console.log('user added')
@@ -67,6 +58,15 @@ const saveUserId = async (userId)=>{
     throw error
   }
 }
+
+
+setInterval(()=>{
+
+  checkReminder()
+  .then(res => console.log(res))
+  .catch(err => console.log(err))
+
+}, 60 * 1000)
 
 // Start Express server
 app.listen(PORT, () => {
